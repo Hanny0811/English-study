@@ -35,6 +35,11 @@
   .navchip{font-family:'Space Mono',monospace;font-size:11px;background:var(--white);border:1px solid var(--kraft-dark);border-radius:20px;padding:5px 10px;text-decoration:none;color:var(--ink);}
   .navchip.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
 
+  .part-tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;}
+  .parttag{font-family:'Space Mono',monospace;font-size:10.5px;background:var(--white);border:1px solid var(--kraft-dark);border-radius:20px;padding:4px 10px;color:#8a7f6c;}
+  .parttag.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+  .parttag.done{border-color:var(--stamp-green);color:var(--stamp-green);}
+
   .progress-wrap{max-width:420px;margin:0 auto 6px;}
   .progress-track{height:6px;background:var(--kraft-dark);border-radius:4px;overflow:hidden;}
   .progress-fill{height:100%;background:var(--ink);width:0%;transition:width .3s;}
@@ -52,9 +57,21 @@
     box-shadow:inset 0 0 0 2px rgba(30,51,72,0.35), 0 1px 2px rgba(0,0,0,0.3);
   }
   .qnum{font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);text-align:right;letter-spacing:1px;}
-  .qword{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(24px,6vw,32px);text-align:center;margin:14px 0 4px;}
-  .qpos{font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);text-transform:uppercase;text-align:center;letter-spacing:1.5px;margin-bottom:18px;}
+  .qtype{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--rope);text-transform:uppercase;letter-spacing:1.5px;text-align:center;margin-bottom:8px;}
+  .qword{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(22px,6vw,30px);text-align:center;margin:10px 0 4px;}
+  .qpos{font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);text-transform:uppercase;text-align:center;letter-spacing:1.5px;margin-bottom:14px;}
   .qhint{font-size:12px;color:#6b6152;text-align:center;margin-bottom:14px;font-family:'Space Mono',monospace;}
+  .qsentence{font-size:16px;line-height:1.6;text-align:center;color:var(--ink);margin:10px 0 16px;font-style:italic;}
+  .qsentence b{font-style:normal;border-bottom:2px solid var(--ink);padding:0 4px;}
+
+  .speak-row{display:flex;justify-content:center;margin-bottom:14px;}
+  .speak-btn{
+    border:none;background:var(--ink);color:var(--white);
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 3px 8px rgba(30,51,72,0.3);font-size:16px;
+  }
+  .speak-btn:active{transform:scale(0.92);}
 
   .options{display:flex;flex-direction:column;gap:9px;}
   .opt{
@@ -66,7 +83,18 @@
   .opt.selected{border-color:var(--ink);background:#eee6d3;font-weight:600;}
   .opt.correct{border-color:var(--stamp-green);background:#e3ede4;font-weight:600;}
   .opt.incorrect{border-color:var(--stamp-red);background:#f3dfdb;font-weight:600;}
-  .opt:disabled{cursor:default;}
+
+  .type-row{display:flex;gap:8px;margin-top:6px;}
+  .type-input{
+    flex:1;padding:11px 14px;border:1.5px solid var(--kraft-dark);border-radius:6px;
+    font-family:'Libre Franklin',sans-serif;font-size:15px;background:var(--white);color:var(--ink);
+  }
+  .type-input:focus{outline:2px solid var(--ink);outline-offset:1px;}
+  .type-input.correct{border-color:var(--stamp-green);background:#e3ede4;}
+  .type-input.incorrect{border-color:var(--stamp-red);background:#f3dfdb;}
+  .type-feedback{margin-top:10px;font-size:13px;text-align:center;font-family:'Space Mono',monospace;}
+  .type-feedback.correct{color:var(--stamp-green);}
+  .type-feedback.incorrect{color:var(--stamp-red);}
 
   .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
   button.ctl{
@@ -91,6 +119,8 @@
   }
   .stamp.pass{color:var(--stamp-green);border-color:var(--stamp-green);}
   .stamp.retry{color:var(--stamp-red);border-color:var(--stamp-red);}
+  .part-breakdown{text-align:left;margin-top:22px;font-size:13px;}
+  .part-breakdown .prow{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--kraft-dark);}
   .result-list{text-align:left;margin-top:20px;font-size:13px;}
   .result-list .ritem{padding:8px 0;border-top:1px solid var(--kraft-dark);}
   .ritem .rword{font-weight:700;}
@@ -105,7 +135,7 @@
   <header>
     <div class="eyebrow">Inspection Deck · Vocabulary Check</div>
     <h1>Mini Test 1</h1>
-    <div class="sub">Chọn nghĩa đúng cho mỗi từ · Tổng hợp Bài 1–6</div>
+    <div class="sub">Trắc nghiệm · Nghe · Viết · Điền từ — Tổng hợp Bài 1–6</div>
   </header>
 
   <div class="lesson-nav">
@@ -119,17 +149,16 @@
   </div>
 
   <div id="quizArea">
+    <div class="part-tabs" id="partTabs"></div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
     </div>
     <div class="progress-label" id="progressLabel">Câu 1 / 24</div>
 
-    <div class="qcard">
+    <div class="qcard" id="qcard">
       <div class="qnum" id="qnum">Q-01</div>
-      <div class="qword" id="qword">—</div>
-      <div class="qpos" id="qpos"></div>
-      <div class="qhint">Từ này có nghĩa là gì?</div>
-      <div class="options" id="options"></div>
+      <div class="qtype" id="qtype"></div>
+      <div id="qbody"></div>
     </div>
 
     <div class="controls">
@@ -142,6 +171,7 @@
     <div class="eyebrow">Kết quả</div>
     <div class="score" id="scoreText">0 / 24</div>
     <div id="stampArea"></div>
+    <div class="part-breakdown" id="partBreakdown"></div>
     <div class="result-list" id="resultList"></div>
     <div class="controls" style="margin-top:20px;">
       <button class="ctl primary" id="retryBtn">↻ Làm lại</button>
@@ -150,165 +180,43 @@
 </div>
 
 <script>
-const POOL = [
-  {word:"tolerance", pos:"n.", meaning:"dung sai"},
-  {word:"defect", pos:"n.", meaning:"lỗi, khuyết tật"},
-  {word:"yield", pos:"n.", meaning:"tỷ lệ đạt (sản xuất)"},
-  {word:"escalate", pos:"v.", meaning:"báo cáo/leo thang vấn đề"},
-  {word:"root cause", pos:"phrase", meaning:"nguyên nhân gốc rễ"},
-  {word:"calibration", pos:"n.", meaning:"hiệu chuẩn"},
-  {word:"deadline", pos:"n.", meaning:"hạn chót"},
-  {word:"align", pos:"v.", meaning:"thống nhất, đồng bộ"},
+const FULL_POOL = [
+  {word:"tolerance", pos:"n.", meaning:"dung sai", example:"The camera lens must be produced within a very tight tolerance.", exampleVi:"Ống kính camera phải được sản xuất trong dung sai rất chặt."},
+  {word:"defect", pos:"n.", meaning:"lỗi, khuyết tật", example:"We found a small defect on the module surface during inspection.", exampleVi:"Chúng tôi phát hiện một lỗi nhỏ trên bề mặt module trong quá trình kiểm tra."},
+  {word:"yield", pos:"n.", meaning:"tỷ lệ đạt (sản xuất)", example:"The new process improved our production yield by five percent.", exampleVi:"Quy trình mới đã cải thiện tỷ lệ đạt sản xuất thêm năm phần trăm."},
+  {word:"escalate", pos:"v.", meaning:"báo cáo/leo thang vấn đề", example:"Please escalate this issue to engineering if it happens again.", exampleVi:"Vui lòng báo cáo vấn đề này lên bộ phận kỹ thuật nếu nó tái diễn."},
+  {word:"root cause", pos:"phrase", meaning:"nguyên nhân gốc rễ", example:"The team is still investigating the root cause of the failure.", exampleVi:"Nhóm vẫn đang điều tra nguyên nhân gốc rễ của lỗi này."},
+  {word:"calibration", pos:"n.", meaning:"hiệu chuẩn", example:"The equipment needs calibration before the next test run.", exampleVi:"Thiết bị cần được hiệu chuẩn trước lần chạy thử tiếp theo."},
+  {word:"deadline", pos:"n.", meaning:"hạn chót", example:"Can we push the deadline back by two days?", exampleVi:"Chúng ta có thể dời hạn chót lại hai ngày không?"},
+  {word:"align", pos:"v.", meaning:"thống nhất, đồng bộ", example:"Let's align with the customer before we finalize the schedule.", exampleVi:"Hãy thống nhất với khách hàng trước khi chốt lịch trình."},
 
-  {word:"assembly line", pos:"n.", meaning:"dây chuyền lắp ráp"},
-  {word:"throughput", pos:"n.", meaning:"năng suất đầu ra"},
-  {word:"downtime", pos:"n.", meaning:"thời gian ngừng máy"},
-  {word:"bottleneck", pos:"n.", meaning:"điểm nghẽn (trong sản xuất)"},
-  {word:"changeover", pos:"n.", meaning:"thời gian chuyển đổi (đổi mã sản phẩm)"},
-  {word:"fixture", pos:"n.", meaning:"đồ gá"},
-  {word:"SOP", pos:"phrase", meaning:"quy trình vận hành chuẩn"},
-  {word:"ramp-up", pos:"phrase", meaning:"tăng tốc sản lượng"},
+  {word:"assembly line", pos:"n.", meaning:"dây chuyền lắp ráp", example:"Each camera module passes through ten stations on the assembly line.", exampleVi:"Mỗi module camera đi qua mười trạm trên dây chuyền lắp ráp."},
+  {word:"throughput", pos:"n.", meaning:"năng suất đầu ra", example:"We increased throughput by adding a second shift.", exampleVi:"Chúng tôi tăng năng suất đầu ra bằng cách thêm ca thứ hai."},
+  {word:"downtime", pos:"n.", meaning:"thời gian ngừng máy", example:"Unplanned downtime on line 3 cost us two hours today.", exampleVi:"Thời gian ngừng máy ngoài kế hoạch trên chuyền 3 khiến mất hai tiếng hôm nay."},
+  {word:"bottleneck", pos:"n.", meaning:"điểm nghẽn (trong sản xuất)", example:"The final inspection step is currently our biggest bottleneck.", exampleVi:"Bước kiểm tra cuối hiện là điểm nghẽn lớn nhất của chúng tôi."},
+  {word:"changeover", pos:"n.", meaning:"thời gian chuyển đổi (đổi mã sản phẩm)", example:"The changeover between product models usually takes thirty minutes.", exampleVi:"Thời gian chuyển đổi giữa các mã sản phẩm thường mất ba mươi phút."},
+  {word:"fixture", pos:"n.", meaning:"đồ gá", example:"The technician replaced a worn fixture on station five.", exampleVi:"Kỹ thuật viên đã thay đồ gá bị mòn ở trạm số năm."},
+  {word:"SOP", pos:"phrase", meaning:"quy trình vận hành chuẩn", example:"All operators must follow the SOP when handling the lens units.", exampleVi:"Mọi công nhân phải tuân theo quy trình vận hành chuẩn khi thao tác với các cụm ống kính."},
+  {word:"ramp-up", pos:"phrase", meaning:"tăng tốc sản lượng", example:"We expect a fast ramp-up once the new line is validated.", exampleVi:"Chúng tôi kỳ vọng tăng tốc sản lượng nhanh sau khi chuyền mới được xác nhận."},
 
-  {word:"inspection", pos:"n.", meaning:"kiểm tra"},
-  {word:"sampling", pos:"n.", meaning:"lấy mẫu"},
-  {word:"defect rate", pos:"phrase", meaning:"tỷ lệ lỗi"},
-  {word:"corrective action", pos:"phrase", meaning:"hành động khắc phục"},
-  {word:"non-conformance", pos:"n.", meaning:"sự không phù hợp (lỗi không đạt chuẩn)"},
-  {word:"specification", pos:"n.", meaning:"thông số kỹ thuật"},
-  {word:"pass/fail criteria", pos:"phrase", meaning:"tiêu chí đạt/không đạt"},
-  {word:"traceability", pos:"n.", meaning:"khả năng truy xuất nguồn gốc"},
+  {word:"inspection", pos:"n.", meaning:"kiểm tra", example:"Every batch goes through a final inspection before shipment.", exampleVi:"Mỗi lô hàng đều qua kiểm tra cuối cùng trước khi xuất xưởng."},
+  {word:"sampling", pos:"n.", meaning:"lấy mẫu", example:"We use random sampling to check incoming components.", exampleVi:"Chúng tôi lấy mẫu ngẫu nhiên để kiểm tra linh kiện đầu vào."},
+  {word:"defect rate", pos:"phrase", meaning:"tỷ lệ lỗi", example:"The defect rate dropped after we adjusted the calibration.", exampleVi:"Tỷ lệ lỗi giảm sau khi chúng tôi điều chỉnh hiệu chuẩn."},
+  {word:"corrective action", pos:"phrase", meaning:"hành động khắc phục", example:"Please submit a corrective action plan within 48 hours.", exampleVi:"Vui lòng nộp kế hoạch hành động khắc phục trong vòng 48 giờ."},
+  {word:"non-conformance", pos:"n.", meaning:"sự không phù hợp (lỗi không đạt chuẩn)", example:"A non-conformance was found on the second shift's output.", exampleVi:"Một lỗi không phù hợp được phát hiện trên sản lượng của ca hai."},
+  {word:"specification", pos:"n.", meaning:"thông số kỹ thuật", example:"The lens diameter must match the customer's specification exactly.", exampleVi:"Đường kính ống kính phải khớp chính xác với thông số kỹ thuật của khách hàng."},
+  {word:"pass/fail criteria", pos:"phrase", meaning:"tiêu chí đạt/không đạt", example:"The test report lists clear pass/fail criteria for each parameter.", exampleVi:"Báo cáo kiểm tra liệt kê rõ tiêu chí đạt/không đạt cho từng thông số."},
+  {word:"traceability", pos:"n.", meaning:"khả năng truy xuất nguồn gốc", example:"Traceability lets us track every module back to its production batch.", exampleVi:"Khả năng truy xuất nguồn gốc giúp lần lại từng module về đúng lô sản xuất."},
 
-  {word:"kickoff meeting", pos:"phrase", meaning:"cuộc họp khởi động dự án"},
-  {word:"action item", pos:"phrase", meaning:"việc cần làm (sau họp)"},
-  {word:"stakeholder", pos:"n.", meaning:"bên liên quan"},
-  {word:"follow up", pos:"phrase", meaning:"theo dõi, đôn đốc"},
-  {word:"milestone", pos:"n.", meaning:"mốc quan trọng (dự án)"},
-  {word:"bandwidth", pos:"n.", meaning:"khả năng/thời gian rảnh để làm việc"},
-  {word:"touch base", pos:"phrase", meaning:"trao đổi nhanh, cập nhật tình hình"},
-  {word:"sync up", pos:"phrase", meaning:"đồng bộ thông tin, họp cập nhật"},
+  {word:"kickoff meeting", pos:"phrase", meaning:"cuộc họp khởi động dự án", example:"We scheduled the kickoff meeting with Apple for next Monday.", exampleVi:"Chúng tôi đã lên lịch họp khởi động dự án với Apple vào thứ Hai tới."},
+  {word:"action item", pos:"phrase", meaning:"việc cần làm (sau họp)", example:"Each action item needs an owner and a due date.", exampleVi:"Mỗi việc cần làm cần có người phụ trách và hạn hoàn thành."},
+  {word:"stakeholder", pos:"n.", meaning:"bên liên quan", example:"All key stakeholders should review the schedule before it's finalized.", exampleVi:"Tất cả các bên liên quan chính nên xem xét lịch trình trước khi chốt."},
+  {word:"follow up", pos:"phrase", meaning:"theo dõi, đôn đốc", example:"I'll follow up with the supplier about the delayed parts.", exampleVi:"Tôi sẽ theo dõi và đôn đốc nhà cung cấp về các linh kiện bị trễ."},
+  {word:"milestone", pos:"n.", meaning:"mốc quan trọng (dự án)", example:"The next milestone is the engineering validation build.", exampleVi:"Mốc quan trọng tiếp theo là đợt build xác nhận kỹ thuật."},
+  {word:"bandwidth", pos:"n.", meaning:"khả năng/thời gian rảnh để làm việc", example:"Do we have enough bandwidth to take on this extra task?", exampleVi:"Chúng ta có đủ thời gian/nguồn lực để nhận thêm việc này không?"},
+  {word:"touch base", pos:"phrase", meaning:"trao đổi nhanh, cập nhật tình hình", example:"Let's touch base tomorrow morning before the customer call.", exampleVi:"Hãy trao đổi nhanh vào sáng mai trước cuộc gọi với khách hàng."},
+  {word:"sync up", pos:"phrase", meaning:"đồng bộ thông tin, họp cập nhật", example:"The two teams need to sync up on the test schedule.", exampleVi:"Hai nhóm cần họp đồng bộ về lịch kiểm thử."},
 
-  {word:"supplier", pos:"n.", meaning:"nhà cung cấp"},
-  {word:"lead time", pos:"phrase", meaning:"thời gian chờ (từ đặt hàng đến giao hàng)"},
-  {word:"inventory", pos:"n.", meaning:"hàng tồn kho"},
-  {word:"shipment", pos:"n.", meaning:"lô hàng"},
-  {word:"procurement", pos:"n.", meaning:"mua sắm, thu mua"},
-  {word:"backorder", pos:"n.", meaning:"đơn hàng tồn đọng (chưa giao được)"},
-  {word:"logistics", pos:"n.", meaning:"hậu cần, logistics"},
-  {word:"bill of materials", pos:"phrase", meaning:"danh mục vật tư (BOM)"},
-
-  {word:"datasheet", pos:"n.", meaning:"bảng dữ liệu kỹ thuật"},
-  {word:"revision", pos:"n.", meaning:"phiên bản chỉnh sửa (tài liệu)"},
-  {word:"deviation", pos:"n.", meaning:"sai lệch (so với quy trình/thông số)"},
-  {word:"checklist", pos:"n.", meaning:"danh sách kiểm tra"},
-  {word:"sign-off", pos:"phrase", meaning:"phê duyệt cuối cùng"},
-  {word:"summary report", pos:"phrase", meaning:"báo cáo tóm tắt"},
-  {word:"version control", pos:"phrase", meaning:"quản lý phiên bản"},
-  {word:"audit trail", pos:"phrase", meaning:"dấu vết kiểm toán/lịch sử thao tác"}
-];
-
-function shuffle(arr){
-  const a = arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-// pick 4 per lesson-block of 8 -> 24 questions total, then shuffle order
-let questions = [];
-for(let block=0; block<6; block++){
-  const slice = POOL.slice(block*8, block*8+8);
-  questions = questions.concat(shuffle(slice).slice(0,4));
-}
-questions = shuffle(questions);
-
-// build 4-option sets (1 correct + 3 distractors from the whole pool, excluding same word)
-questions = questions.map(q => {
-  const others = POOL.filter(p => p.word !== q.word);
-  const distractors = shuffle(others).slice(0,3).map(p=>p.meaning);
-  const options = shuffle([q.meaning, ...distractors]);
-  return {...q, options};
-});
-
-let current = 0;
-let answers = new Array(questions.length).fill(null); // store chosen meaning per question
-
-const $ = id => document.getElementById(id);
-
-function renderQuestion(){
-  const q = questions[current];
-  $('qnum').textContent = 'Q-' + String(current+1).padStart(2,'0');
-  $('qword').textContent = q.word;
-  $('qpos').textContent = q.pos;
-  $('progressLabel').textContent = `Câu ${current+1} / ${questions.length}`;
-  $('progressFill').style.width = ((current)/questions.length*100) + '%';
-
-  const optWrap = $('options');
-  optWrap.innerHTML = '';
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.type = 'button';
-    btn.textContent = opt;
-    if(answers[current] === opt) btn.classList.add('selected');
-    btn.addEventListener('click', () => {
-      answers[current] = opt;
-      renderQuestion();
-    });
-    optWrap.appendChild(btn);
-  });
-
-  $('prevBtn').disabled = current === 0;
-  $('nextBtn').disabled = answers[current] === null;
-  $('nextBtn').textContent = current === questions.length - 1 ? 'Nộp bài ✓' : 'Câu tiếp ▶';
-}
-
-$('prevBtn').addEventListener('click', () => {
-  if(current > 0){ current--; renderQuestion(); }
-});
-$('nextBtn').addEventListener('click', () => {
-  if(answers[current] === null) return;
-  if(current < questions.length - 1){
-    current++;
-    renderQuestion();
-  } else {
-    showResult();
-  }
-});
-
-function showResult(){
-  let score = 0;
-  const listEl = $('resultList');
-  listEl.innerHTML = '';
-  questions.forEach((q, i) => {
-    const correct = answers[i] === q.meaning;
-    if(correct) score++;
-    const row = document.createElement('div');
-    row.className = 'ritem ' + (correct ? 'right' : 'wrong');
-    row.innerHTML = `<span class="rword">${q.word}</span> — đúng: ${q.meaning}` +
-      (correct ? '' : ` <br>(bạn chọn: ${answers[i] ?? '—'})`);
-    listEl.appendChild(row);
-  });
-
-  $('quizArea').classList.add('hidden');
-  $('resultArea').classList.remove('hidden');
-  $('scoreText').textContent = `${score} / ${questions.length}`;
-
-  const pct = score / questions.length;
-  const stampEl = $('stampArea');
-  if(pct >= 0.7){
-    stampEl.innerHTML = '<div class="stamp pass">Đạt</div>';
-  } else {
-    stampEl.innerHTML = '<div class="stamp retry">Cần ôn thêm</div>';
-  }
-}
-
-$('retryBtn').addEventListener('click', () => {
-  window.location.reload();
-});
-
-renderQuestion();
-</script>
-</body>
-</html>
+  {word:"supplier", pos:"n.", meaning:"nhà cung cấp", example:"Our lens supplier confirmed the new delivery date.", exampleVi:"Nhà cung cấp ống kính của chúng tôi đã xác nhận ngày giao hàng mới."},
+  {word:"lead time", pos:"phrase", meaning:"thời gian chờ (từ đặt hàng đến giao hàng)", example:"The lead time for this component is currently six weeks.", exampleVi:"Thời gian chờ cho linh kiện này hiện là sáu tuần."},
+  {word:"inventory", pos:"n.",
