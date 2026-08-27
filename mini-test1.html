@@ -219,4 +219,335 @@ const FULL_POOL = [
 
   {word:"supplier", pos:"n.", meaning:"nhà cung cấp", example:"Our lens supplier confirmed the new delivery date.", exampleVi:"Nhà cung cấp ống kính của chúng tôi đã xác nhận ngày giao hàng mới."},
   {word:"lead time", pos:"phrase", meaning:"thời gian chờ (từ đặt hàng đến giao hàng)", example:"The lead time for this component is currently six weeks.", exampleVi:"Thời gian chờ cho linh kiện này hiện là sáu tuần."},
-  {word:"inventory", pos:"n.",
+  {word:"inventory", pos:"n.", meaning:"hàng tồn kho", example:"We keep two weeks of safety inventory for critical parts.", exampleVi:"Chúng tôi giữ hai tuần tồn kho an toàn cho các linh kiện quan trọng."},
+  {word:"shipment", pos:"n.", meaning:"lô hàng", example:"The next shipment is expected to arrive on Friday.", exampleVi:"Lô hàng tiếp theo dự kiến sẽ đến vào thứ Sáu."},
+  {word:"procurement", pos:"n.", meaning:"mua sắm, thu mua", example:"The procurement team is negotiating a better price with the vendor.", exampleVi:"Đội thu mua đang đàm phán giá tốt hơn với nhà cung cấp."},
+  {word:"backorder", pos:"n.", meaning:"đơn hàng tồn đọng (chưa giao được)", example:"Ten units are on backorder due to a parts shortage.", exampleVi:"Mười đơn vị đang bị tồn đọng do thiếu linh kiện."},
+  {word:"logistics", pos:"n.", meaning:"hậu cần, logistics", example:"Logistics arranged air freight to meet the tight deadline.", exampleVi:"Bộ phận logistics đã sắp xếp vận chuyển đường hàng không để kịp hạn chót."},
+  {word:"bill of materials", pos:"phrase", meaning:"danh mục vật tư (BOM)", example:"Please update the bill of materials with the new connector part number.", exampleVi:"Vui lòng cập nhật danh mục vật tư với mã linh kiện đầu nối mới."},
+
+  {word:"datasheet", pos:"n.", meaning:"bảng dữ liệu kỹ thuật", example:"Check the datasheet for the sensor's exact operating voltage.", exampleVi:"Kiểm tra bảng dữ liệu kỹ thuật để biết điện áp hoạt động chính xác của cảm biến."},
+  {word:"revision", pos:"n.", meaning:"phiên bản chỉnh sửa (tài liệu)", example:"This drawing is on revision C after the last design change.", exampleVi:"Bản vẽ này đang ở phiên bản C sau lần thay đổi thiết kế gần nhất."},
+  {word:"deviation", pos:"n.", meaning:"sai lệch (so với quy trình/thông số)", example:"Any deviation from the process must be approved by engineering.", exampleVi:"Bất kỳ sai lệch nào so với quy trình đều phải được kỹ thuật phê duyệt."},
+  {word:"checklist", pos:"n.", meaning:"danh sách kiểm tra", example:"Complete the pre-shipment checklist before closing the order.", exampleVi:"Hoàn thành danh sách kiểm tra trước khi đóng đơn hàng."},
+  {word:"sign-off", pos:"phrase", meaning:"phê duyệt cuối cùng", example:"We're still waiting on sign-off from the customer's quality team.", exampleVi:"Chúng tôi vẫn đang chờ phê duyệt cuối cùng từ đội chất lượng của khách hàng."},
+  {word:"summary report", pos:"phrase", meaning:"báo cáo tóm tắt", example:"I'll send a summary report after today's test is complete.", exampleVi:"Tôi sẽ gửi báo cáo tóm tắt sau khi bài kiểm tra hôm nay hoàn tất."},
+  {word:"version control", pos:"phrase", meaning:"quản lý phiên bản", example:"All documents are kept under version control on the shared drive.", exampleVi:"Mọi tài liệu đều được quản lý phiên bản trên ổ đĩa dùng chung."},
+  {word:"audit trail", pos:"phrase", meaning:"dấu vết kiểm toán/lịch sử thao tác", example:"The system keeps an audit trail of every change made to the file.", exampleVi:"Hệ thống lưu lại dấu vết kiểm toán cho mọi thay đổi trên file."}
+];
+
+const PART_LABELS = ["Trắc nghiệm nghĩa", "Nghe & điền từ", "Viết từ", "Điền từ vào câu"];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function normalize(s){
+  return (s||'').toLowerCase().trim().replace(/\s+/g,' ').replace(/[.,!?;:'"]/g,'');
+}
+
+function blankSentence(example, word){
+  const re = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'i');
+  return example.replace(re, '______');
+}
+
+// pick 24 distinct words, split into 4 groups of 6
+const shuffledPool = shuffle(FULL_POOL);
+const chosen = shuffledPool.slice(0, 24);
+const groups = [chosen.slice(0,6), chosen.slice(6,12), chosen.slice(12,18), chosen.slice(18,24)];
+
+let questions = [];
+
+// Part 1: mcq_meaning
+groups[0].forEach(w => {
+  const others = FULL_POOL.filter(p => p.word !== w.word);
+  const distractors = shuffle(others).slice(0,3).map(p=>p.meaning);
+  questions.push({
+    part:0, type:'mcq_meaning', word:w.word, pos:w.pos, meaning:w.meaning,
+    options: shuffle([w.meaning, ...distractors])
+  });
+});
+
+// Part 2: listen_fill (type the missing word after listening)
+groups[1].forEach(w => {
+  questions.push({
+    part:1, type:'listen_fill', word:w.word, pos:w.pos, example:w.example,
+    exampleVi:w.exampleVi, blanked: blankSentence(w.example, w.word)
+  });
+});
+
+// Part 3: write (Vietnamese meaning -> type English word)
+groups[2].forEach(w => {
+  questions.push({
+    part:2, type:'write', word:w.word, pos:w.pos, meaning:w.meaning
+  });
+});
+
+// Part 4: mcq_fill (sentence with blank, choose correct word)
+groups[3].forEach(w => {
+  const others = FULL_POOL.filter(p => p.word !== w.word);
+  const distractors = shuffle(others).slice(0,3).map(p=>p.word);
+  questions.push({
+    part:3, type:'mcq_fill', word:w.word, pos:w.pos, example:w.example,
+    blanked: blankSentence(w.example, w.word),
+    options: shuffle([w.word, ...distractors])
+  });
+});
+
+let current = 0;
+let answers = new Array(questions.length).fill(null).map(() => ({done:false, userAnswer:null, isCorrect:false}));
+
+const $ = id => document.getElementById(id);
+
+function renderPartTabs(){
+  const wrap = $('partTabs');
+  wrap.innerHTML = '';
+  const currentPart = questions[current].part;
+  PART_LABELS.forEach((label, i) => {
+    const partQuestionIdxs = questions.map((q,idx)=>({q,idx})).filter(o=>o.q.part===i).map(o=>o.idx);
+    const partDone = partQuestionIdxs.every(idx => answers[idx].done);
+    const tag = document.createElement('span');
+    tag.className = 'parttag' + (i===currentPart ? ' active' : '') + (partDone ? ' done':'');
+    tag.textContent = `${i+1}. ${label}`;
+    wrap.appendChild(tag);
+  });
+}
+
+function renderQuestion(){
+  const q = questions[current];
+  const a = answers[current];
+  $('qnum').textContent = 'Q-' + String(current+1).padStart(2,'0');
+  $('qtype').textContent = PART_LABELS[q.part];
+  $('progressLabel').textContent = `Câu ${current+1} / ${questions.length}`;
+  $('progressFill').style.width = (current/questions.length*100) + '%';
+  renderPartTabs();
+
+  const body = $('qbody');
+  body.innerHTML = '';
+
+  if(q.type === 'mcq_meaning'){
+    const w = document.createElement('div'); w.className='qword'; w.textContent = q.word;
+    const p = document.createElement('div'); p.className='qpos'; p.textContent = q.pos;
+    const h = document.createElement('div'); h.className='qhint'; h.textContent = 'Từ này có nghĩa là gì?';
+    body.appendChild(w); body.appendChild(p); body.appendChild(h);
+    const optWrap = document.createElement('div'); optWrap.className='options';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className='opt'; btn.type='button'; btn.textContent = opt;
+      if(a.done){
+        btn.disabled = true;
+        if(opt === q.meaning) btn.classList.add('correct');
+        else if(opt === a.userAnswer) btn.classList.add('incorrect');
+      } else if(a.userAnswer === opt){
+        btn.classList.add('selected');
+      }
+      btn.addEventListener('click', () => {
+        if(a.done) return;
+        a.userAnswer = opt;
+        a.isCorrect = (opt === q.meaning);
+        a.done = true;
+        renderQuestion();
+      });
+      optWrap.appendChild(btn);
+    });
+    body.appendChild(optWrap);
+  }
+
+  else if(q.type === 'listen_fill'){
+    const p = document.createElement('div'); p.className='qpos'; p.textContent = q.pos;
+    const h = document.createElement('div'); h.className='qhint'; h.textContent = 'Nghe câu, rồi gõ từ còn thiếu';
+    const speakRow = document.createElement('div'); speakRow.className='speak-row';
+    const speakBtn = document.createElement('button'); speakBtn.className='speak-btn'; speakBtn.type='button'; speakBtn.textContent='▶';
+    speakBtn.addEventListener('click', () => speak(q.example));
+    speakRow.appendChild(speakBtn);
+    const sent = document.createElement('div'); sent.className='qsentence';
+    sent.innerHTML = q.blanked.replace('______', '<b>______</b>');
+    body.appendChild(p); body.appendChild(h); body.appendChild(speakRow); body.appendChild(sent);
+
+    const row = document.createElement('div'); row.className='type-row';
+    const input = document.createElement('input');
+    input.type='text'; input.className='type-input'; input.placeholder='Gõ từ bạn nghe được...';
+    input.value = a.userAnswer || '';
+    if(a.done){
+      input.disabled = true;
+      input.classList.add(a.isCorrect ? 'correct' : 'incorrect');
+    }
+    row.appendChild(input);
+    if(!a.done){
+      const checkBtn = document.createElement('button');
+      checkBtn.className='ctl primary'; checkBtn.type='button'; checkBtn.textContent='Kiểm tra';
+      checkBtn.addEventListener('click', () => {
+        a.userAnswer = input.value;
+        a.isCorrect = normalize(input.value) === normalize(q.word);
+        a.done = true;
+        renderQuestion();
+      });
+      row.appendChild(checkBtn);
+      input.addEventListener('keydown', e => { if(e.key==='Enter') checkBtn.click(); });
+    }
+    body.appendChild(row);
+    if(a.done){
+      const fb = document.createElement('div');
+      fb.className = 'type-feedback ' + (a.isCorrect ? 'correct':'incorrect');
+      fb.textContent = a.isCorrect ? 'Chính xác!' : `Đáp án đúng: ${q.word}`;
+      body.appendChild(fb);
+    }
+    setTimeout(() => { if(!a.done) input.focus(); }, 50);
+  }
+
+  else if(q.type === 'write'){
+    const h = document.createElement('div'); h.className='qhint'; h.textContent = 'Từ tiếng Anh nào có nghĩa là:';
+    const m = document.createElement('div'); m.className='qword'; m.style.fontSize='24px'; m.textContent = q.meaning;
+    body.appendChild(h); body.appendChild(m);
+
+    const row = document.createElement('div'); row.className='type-row'; row.style.marginTop='16px';
+    const input = document.createElement('input');
+    input.type='text'; input.className='type-input'; input.placeholder='Gõ từ tiếng Anh...';
+    input.value = a.userAnswer || '';
+    if(a.done){
+      input.disabled = true;
+      input.classList.add(a.isCorrect ? 'correct' : 'incorrect');
+    }
+    row.appendChild(input);
+    if(!a.done){
+      const checkBtn = document.createElement('button');
+      checkBtn.className='ctl primary'; checkBtn.type='button'; checkBtn.textContent='Kiểm tra';
+      checkBtn.addEventListener('click', () => {
+        a.userAnswer = input.value;
+        a.isCorrect = normalize(input.value) === normalize(q.word);
+        a.done = true;
+        renderQuestion();
+      });
+      row.appendChild(checkBtn);
+      input.addEventListener('keydown', e => { if(e.key==='Enter') checkBtn.click(); });
+    }
+    body.appendChild(row);
+    if(a.done){
+      const fb = document.createElement('div');
+      fb.className = 'type-feedback ' + (a.isCorrect ? 'correct':'incorrect');
+      fb.textContent = a.isCorrect ? 'Chính xác!' : `Đáp án đúng: ${q.word}`;
+      body.appendChild(fb);
+    }
+    setTimeout(() => { if(!a.done) input.focus(); }, 50);
+  }
+
+  else if(q.type === 'mcq_fill'){
+    const h = document.createElement('div'); h.className='qhint'; h.textContent = 'Chọn từ đúng để điền vào chỗ trống';
+    const sent = document.createElement('div'); sent.className='qsentence';
+    sent.innerHTML = q.blanked.replace('______', '<b>______</b>');
+    body.appendChild(h); body.appendChild(sent);
+
+    const optWrap = document.createElement('div'); optWrap.className='options';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className='opt'; btn.type='button'; btn.textContent = opt;
+      if(a.done){
+        btn.disabled = true;
+        if(opt === q.word) btn.classList.add('correct');
+        else if(opt === a.userAnswer) btn.classList.add('incorrect');
+      } else if(a.userAnswer === opt){
+        btn.classList.add('selected');
+      }
+      btn.addEventListener('click', () => {
+        if(a.done) return;
+        a.userAnswer = opt;
+        a.isCorrect = (opt === q.word);
+        a.done = true;
+        renderQuestion();
+      });
+      optWrap.appendChild(btn);
+    });
+    body.appendChild(optWrap);
+  }
+
+  $('prevBtn').disabled = current === 0;
+  $('nextBtn').disabled = !a.done;
+  $('nextBtn').textContent = current === questions.length - 1 ? 'Nộp bài ✓' : 'Câu tiếp ▶';
+}
+
+let englishVoice = null;
+function pickEnglishVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const voices = window.speechSynthesis.getVoices();
+  englishVoice = voices.find(v=>v.lang==='en-US')
+    || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en'))
+    || null;
+}
+if('speechSynthesis' in window){
+  pickEnglishVoice();
+  window.speechSynthesis.onvoiceschanged = pickEnglishVoice;
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  if(!englishVoice) pickEnglishVoice();
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  if(englishVoice) u.voice = englishVoice;
+  u.rate = 0.85;
+  window.speechSynthesis.speak(u);
+}
+
+$('prevBtn').addEventListener('click', () => {
+  if(current > 0){ current--; renderQuestion(); }
+});
+$('nextBtn').addEventListener('click', () => {
+  if(!answers[current].done) return;
+  if(current < questions.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+function showResult(){
+  let score = 0;
+  const partScores = [0,0,0,0];
+  const partTotals = [0,0,0,0];
+  const listEl = $('resultList');
+  listEl.innerHTML = '';
+  questions.forEach((q, i) => {
+    const a = answers[i];
+    partTotals[q.part]++;
+    if(a.isCorrect){ score++; partScores[q.part]++; }
+    const row = document.createElement('div');
+    row.className = 'ritem ' + (a.isCorrect ? 'right' : 'wrong');
+    const correctAns = q.type === 'mcq_meaning' ? q.meaning : q.word;
+    row.innerHTML = `<span class="rword">${q.word}</span> (${PART_LABELS[q.part]}) — đúng: ${correctAns}` +
+      (a.isCorrect ? '' : ` <br>(bạn trả lời: ${a.userAnswer || '—'})`);
+    listEl.appendChild(row);
+  });
+
+  $('quizArea').classList.add('hidden');
+  $('resultArea').classList.remove('hidden');
+  $('scoreText').textContent = `${score} / ${questions.length}`;
+
+  const bd = $('partBreakdown');
+  bd.innerHTML = '';
+  PART_LABELS.forEach((label, i) => {
+    const row = document.createElement('div'); row.className='prow';
+    row.innerHTML = `<span>${label}</span><span>${partScores[i]} / ${partTotals[i]}</span>`;
+    bd.appendChild(row);
+  });
+
+  const pct = score / questions.length;
+  const stampEl = $('stampArea');
+  stampEl.innerHTML = pct >= 0.7
+    ? '<div class="stamp pass">Đạt</div>'
+    : '<div class="stamp retry">Cần ôn thêm</div>';
+}
+
+$('retryBtn').addEventListener('click', () => {
+  window.location.reload();
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
