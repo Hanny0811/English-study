@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Test 1 · Kiểm tra từ vựng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F2ECDD;
+    --kraft: #D9C7A0;
+    --kraft-dark: #C7B285;
+    --ink: #1E3348;
+    --rope: #8B6F47;
+    --stamp-red: #B23A2E;
+    --stamp-green: #3F6E4E;
+    --white: #FBF8F1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);
+    background-image:radial-gradient(circle at 1px 1px, rgba(30,51,72,0.06) 1px, transparent 0);
+    background-size:22px 22px;
+    font-family:'Libre Franklin', sans-serif;color:var(--ink);
+    min-height:100vh;padding:28px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  header{text-align:center;margin-bottom:16px;}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--rope);text-transform:uppercase;}
+  h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:26px;margin:4px 0 2px;}
+  .sub{font-size:13px;color:#5a5044;}
+
+  .lesson-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:20px;}
+  .navchip{font-family:'Space Mono',monospace;font-size:11px;background:var(--white);border:1px solid var(--kraft-dark);border-radius:20px;padding:5px 10px;text-decoration:none;color:var(--ink);}
+  .navchip.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+  .progress-wrap{max-width:420px;margin:0 auto 6px;}
+  .progress-track{height:6px;background:var(--kraft-dark);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--ink);width:0%;transition:width .3s;}
+  .progress-label{text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);margin:8px 0 20px;}
+
+  .qcard{
+    max-width:420px;margin:0 auto 18px;background:var(--kraft);
+    border:1px solid rgba(30,51,72,0.25);border-radius:8px;
+    box-shadow:0 10px 24px rgba(30,51,72,0.15);
+    padding:26px 22px;position:relative;
+  }
+  .qcard::before{
+    content:"";position:absolute;top:14px;left:14px;width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #f4f0e4, #b9ac86 60%, #8a7b53);
+    box-shadow:inset 0 0 0 2px rgba(30,51,72,0.35), 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .qnum{font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);text-align:right;letter-spacing:1px;}
+  .qword{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(24px,6vw,32px);text-align:center;margin:14px 0 4px;}
+  .qpos{font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);text-transform:uppercase;text-align:center;letter-spacing:1.5px;margin-bottom:18px;}
+  .qhint{font-size:12px;color:#6b6152;text-align:center;margin-bottom:14px;font-family:'Space Mono',monospace;}
+
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .opt{
+    background:var(--white);border:1.5px solid var(--kraft-dark);border-radius:6px;
+    padding:11px 14px;font-size:14.5px;cursor:pointer;text-align:left;
+    font-family:'Libre Franklin',sans-serif;color:var(--ink);
+  }
+  .opt:hover{border-color:var(--ink);}
+  .opt.selected{border-color:var(--ink);background:#eee6d3;font-weight:600;}
+  .opt.correct{border-color:var(--stamp-green);background:#e3ede4;font-weight:600;}
+  .opt.incorrect{border-color:var(--stamp-red);background:#f3dfdb;font-weight:600;}
+  .opt:disabled{cursor:default;}
+
+  .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+  button.ctl{
+    font-family:'Space Mono',monospace;font-size:12px;background:var(--white);
+    border:1px solid var(--kraft-dark);color:var(--ink);padding:9px 16px;border-radius:5px;
+    cursor:pointer;letter-spacing:0.5px;
+  }
+  button.ctl:hover{border-color:var(--ink);}
+  button.ctl.primary{background:var(--ink);color:var(--white);border-color:var(--ink);}
+  button.ctl:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .result{
+    max-width:420px;margin:10px auto 0;text-align:center;
+    background:var(--white);border:1px solid var(--kraft-dark);border-radius:8px;
+    padding:30px 24px;
+  }
+  .result .score{font-family:'Oswald',sans-serif;font-weight:700;font-size:44px;margin:6px 0;}
+  .result .stamp{
+    display:inline-block;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;
+    letter-spacing:2px;text-transform:uppercase;border:2.5px solid;border-radius:4px;
+    padding:5px 12px;transform:rotate(-6deg);margin-top:10px;
+  }
+  .stamp.pass{color:var(--stamp-green);border-color:var(--stamp-green);}
+  .stamp.retry{color:var(--stamp-red);border-color:var(--stamp-red);}
+  .result-list{text-align:left;margin-top:20px;font-size:13px;}
+  .result-list .ritem{padding:8px 0;border-top:1px solid var(--kraft-dark);}
+  .ritem .rword{font-weight:700;}
+  .ritem.wrong .rword{color:var(--stamp-red);}
+  .ritem.right .rword{color:var(--stamp-green);}
+  .hidden{display:none;}
+  @media (prefers-reduced-motion: reduce){ .progress-fill{transition:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Inspection Deck · Vocabulary Check</div>
+    <h1>Mini Test 1</h1>
+    <div class="sub">Chọn nghĩa đúng cho mỗi từ · Tổng hợp Bài 1–6</div>
+  </header>
+
+  <div class="lesson-nav">
+    <a class="navchip" href="index.html">Bài 1</a>
+    <a class="navchip" href="lesson_2.html">Bài 2</a>
+    <a class="navchip" href="lesson_3.html">Bài 3</a>
+    <a class="navchip" href="lesson_4.html">Bài 4</a>
+    <a class="navchip" href="lesson_5.html">Bài 5</a>
+    <a class="navchip" href="lesson_6.html">Bài 6</a>
+    <a class="navchip active" href="mini-test1.html">Mini Test 1</a>
+  </div>
+
+  <div id="quizArea">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="progress-label" id="progressLabel">Câu 1 / 24</div>
+
+    <div class="qcard">
+      <div class="qnum" id="qnum">Q-01</div>
+      <div class="qword" id="qword">—</div>
+      <div class="qpos" id="qpos"></div>
+      <div class="qhint">Từ này có nghĩa là gì?</div>
+      <div class="options" id="options"></div>
+    </div>
+
+    <div class="controls">
+      <button class="ctl" id="prevBtn">◀ Câu trước</button>
+      <button class="ctl primary" id="nextBtn" disabled>Câu tiếp ▶</button>
+    </div>
+  </div>
+
+  <div class="result hidden" id="resultArea">
+    <div class="eyebrow">Kết quả</div>
+    <div class="score" id="scoreText">0 / 24</div>
+    <div id="stampArea"></div>
+    <div class="result-list" id="resultList"></div>
+    <div class="controls" style="margin-top:20px;">
+      <button class="ctl primary" id="retryBtn">↻ Làm lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const POOL = [
+  {word:"tolerance", pos:"n.", meaning:"dung sai"},
+  {word:"defect", pos:"n.", meaning:"lỗi, khuyết tật"},
+  {word:"yield", pos:"n.", meaning:"tỷ lệ đạt (sản xuất)"},
+  {word:"escalate", pos:"v.", meaning:"báo cáo/leo thang vấn đề"},
+  {word:"root cause", pos:"phrase", meaning:"nguyên nhân gốc rễ"},
+  {word:"calibration", pos:"n.", meaning:"hiệu chuẩn"},
+  {word:"deadline", pos:"n.", meaning:"hạn chót"},
+  {word:"align", pos:"v.", meaning:"thống nhất, đồng bộ"},
+
+  {word:"assembly line", pos:"n.", meaning:"dây chuyền lắp ráp"},
+  {word:"throughput", pos:"n.", meaning:"năng suất đầu ra"},
+  {word:"downtime", pos:"n.", meaning:"thời gian ngừng máy"},
+  {word:"bottleneck", pos:"n.", meaning:"điểm nghẽn (trong sản xuất)"},
+  {word:"changeover", pos:"n.", meaning:"thời gian chuyển đổi (đổi mã sản phẩm)"},
+  {word:"fixture", pos:"n.", meaning:"đồ gá"},
+  {word:"SOP", pos:"phrase", meaning:"quy trình vận hành chuẩn"},
+  {word:"ramp-up", pos:"phrase", meaning:"tăng tốc sản lượng"},
+
+  {word:"inspection", pos:"n.", meaning:"kiểm tra"},
+  {word:"sampling", pos:"n.", meaning:"lấy mẫu"},
+  {word:"defect rate", pos:"phrase", meaning:"tỷ lệ lỗi"},
+  {word:"corrective action", pos:"phrase", meaning:"hành động khắc phục"},
+  {word:"non-conformance", pos:"n.", meaning:"sự không phù hợp (lỗi không đạt chuẩn)"},
+  {word:"specification", pos:"n.", meaning:"thông số kỹ thuật"},
+  {word:"pass/fail criteria", pos:"phrase", meaning:"tiêu chí đạt/không đạt"},
+  {word:"traceability", pos:"n.", meaning:"khả năng truy xuất nguồn gốc"},
+
+  {word:"kickoff meeting", pos:"phrase", meaning:"cuộc họp khởi động dự án"},
+  {word:"action item", pos:"phrase", meaning:"việc cần làm (sau họp)"},
+  {word:"stakeholder", pos:"n.", meaning:"bên liên quan"},
+  {word:"follow up", pos:"phrase", meaning:"theo dõi, đôn đốc"},
+  {word:"milestone", pos:"n.", meaning:"mốc quan trọng (dự án)"},
+  {word:"bandwidth", pos:"n.", meaning:"khả năng/thời gian rảnh để làm việc"},
+  {word:"touch base", pos:"phrase", meaning:"trao đổi nhanh, cập nhật tình hình"},
+  {word:"sync up", pos:"phrase", meaning:"đồng bộ thông tin, họp cập nhật"},
+
+  {word:"supplier", pos:"n.", meaning:"nhà cung cấp"},
+  {word:"lead time", pos:"phrase", meaning:"thời gian chờ (từ đặt hàng đến giao hàng)"},
+  {word:"inventory", pos:"n.", meaning:"hàng tồn kho"},
+  {word:"shipment", pos:"n.", meaning:"lô hàng"},
+  {word:"procurement", pos:"n.", meaning:"mua sắm, thu mua"},
+  {word:"backorder", pos:"n.", meaning:"đơn hàng tồn đọng (chưa giao được)"},
+  {word:"logistics", pos:"n.", meaning:"hậu cần, logistics"},
+  {word:"bill of materials", pos:"phrase", meaning:"danh mục vật tư (BOM)"},
+
+  {word:"datasheet", pos:"n.", meaning:"bảng dữ liệu kỹ thuật"},
+  {word:"revision", pos:"n.", meaning:"phiên bản chỉnh sửa (tài liệu)"},
+  {word:"deviation", pos:"n.", meaning:"sai lệch (so với quy trình/thông số)"},
+  {word:"checklist", pos:"n.", meaning:"danh sách kiểm tra"},
+  {word:"sign-off", pos:"phrase", meaning:"phê duyệt cuối cùng"},
+  {word:"summary report", pos:"phrase", meaning:"báo cáo tóm tắt"},
+  {word:"version control", pos:"phrase", meaning:"quản lý phiên bản"},
+  {word:"audit trail", pos:"phrase", meaning:"dấu vết kiểm toán/lịch sử thao tác"}
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// pick 4 per lesson-block of 8 -> 24 questions total, then shuffle order
+let questions = [];
+for(let block=0; block<6; block++){
+  const slice = POOL.slice(block*8, block*8+8);
+  questions = questions.concat(shuffle(slice).slice(0,4));
+}
+questions = shuffle(questions);
+
+// build 4-option sets (1 correct + 3 distractors from the whole pool, excluding same word)
+questions = questions.map(q => {
+  const others = POOL.filter(p => p.word !== q.word);
+  const distractors = shuffle(others).slice(0,3).map(p=>p.meaning);
+  const options = shuffle([q.meaning, ...distractors]);
+  return {...q, options};
+});
+
+let current = 0;
+let answers = new Array(questions.length).fill(null); // store chosen meaning per question
+
+const $ = id => document.getElementById(id);
+
+function renderQuestion(){
+  const q = questions[current];
+  $('qnum').textContent = 'Q-' + String(current+1).padStart(2,'0');
+  $('qword').textContent = q.word;
+  $('qpos').textContent = q.pos;
+  $('progressLabel').textContent = `Câu ${current+1} / ${questions.length}`;
+  $('progressFill').style.width = ((current)/questions.length*100) + '%';
+
+  const optWrap = $('options');
+  optWrap.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.type = 'button';
+    btn.textContent = opt;
+    if(answers[current] === opt) btn.classList.add('selected');
+    btn.addEventListener('click', () => {
+      answers[current] = opt;
+      renderQuestion();
+    });
+    optWrap.appendChild(btn);
+  });
+
+  $('prevBtn').disabled = current === 0;
+  $('nextBtn').disabled = answers[current] === null;
+  $('nextBtn').textContent = current === questions.length - 1 ? 'Nộp bài ✓' : 'Câu tiếp ▶';
+}
+
+$('prevBtn').addEventListener('click', () => {
+  if(current > 0){ current--; renderQuestion(); }
+});
+$('nextBtn').addEventListener('click', () => {
+  if(answers[current] === null) return;
+  if(current < questions.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+function showResult(){
+  let score = 0;
+  const listEl = $('resultList');
+  listEl.innerHTML = '';
+  questions.forEach((q, i) => {
+    const correct = answers[i] === q.meaning;
+    if(correct) score++;
+    const row = document.createElement('div');
+    row.className = 'ritem ' + (correct ? 'right' : 'wrong');
+    row.innerHTML = `<span class="rword">${q.word}</span> — đúng: ${q.meaning}` +
+      (correct ? '' : ` <br>(bạn chọn: ${answers[i] ?? '—'})`);
+    listEl.appendChild(row);
+  });
+
+  $('quizArea').classList.add('hidden');
+  $('resultArea').classList.remove('hidden');
+  $('scoreText').textContent = `${score} / ${questions.length}`;
+
+  const pct = score / questions.length;
+  const stampEl = $('stampArea');
+  if(pct >= 0.7){
+    stampEl.innerHTML = '<div class="stamp pass">Đạt</div>';
+  } else {
+    stampEl.innerHTML = '<div class="stamp retry">Cần ôn thêm</div>';
+  }
+}
+
+$('retryBtn').addEventListener('click', () => {
+  window.location.reload();
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
