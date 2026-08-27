@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thẻ Học Tiếng Anh</title>
+<title>Bài 1 · Thẻ Học Tiếng Anh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -201,15 +201,33 @@
   .status-line{text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);margin-bottom:14px;min-height:14px;}
 
   @media (prefers-reduced-motion: reduce){ .tag{transition:none;} }
+
+  .lesson-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:18px;}
+  .navchip{
+    font-family:'Space Mono',monospace;font-size:11px;
+    background:var(--white);border:1px solid var(--kraft-dark);
+    border-radius:20px;padding:5px 10px;text-decoration:none;color:var(--ink);
+  }
+  .navchip.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Inspection Deck · English Vocabulary</div>
+    <div class="eyebrow">Lesson 1 · Process & Project Basics</div>
     <h1>Thẻ Học Tiếng Anh</h1>
     <div class="sub">Bấm vào thẻ để lật · Bấm loa để nghe phát âm</div>
   </header>
+
+  <div class="lesson-nav">
+    <a class="navchip active" href="index.html">Bài 1</a>
+    <a class="navchip" href="lesson_2.html">Bài 2</a>
+    <a class="navchip" href="lesson_3.html">Bài 3</a>
+    <a class="navchip" href="lesson_4.html">Bài 4</a>
+    <a class="navchip" href="lesson_5.html">Bài 5</a>
+    <a class="navchip" href="lesson_6.html">Bài 6</a>
+    <a class="navchip" href="mini-test1.html">Mini Test 1</a>
+  </div>
 
   <div class="stats">
     <div>TỔNG THẺ: <b id="statTotal">0</b></div>
@@ -327,7 +345,7 @@ function setStatus(msg, timeout=2200){
 
 async function loadCards(){
   try{
-    const raw = localStorage.getItem('flashcards');
+    const raw = localStorage.getItem('flashcards_lesson1');
     cards = raw ? JSON.parse(raw) : [];
   }catch(e){
     cards = [];
@@ -343,7 +361,7 @@ async function loadCards(){
 
 async function saveCards(){
   try{
-    localStorage.setItem('flashcards', JSON.stringify(cards));
+    localStorage.setItem('flashcards_lesson1', JSON.stringify(cards));
   }catch(e){
     setStatus('⚠ Lỗi khi lưu dữ liệu.');
   }
