@@ -418,11 +418,27 @@ function renderDeck(){
   });
 }
 
+let englishVoice = null;
+function pickEnglishVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const voices = window.speechSynthesis.getVoices();
+  englishVoice = voices.find(v=>v.lang==='en-US')
+    || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en'))
+    || null;
+}
+if('speechSynthesis' in window){
+  pickEnglishVoice();
+  window.speechSynthesis.onvoiceschanged = pickEnglishVoice;
+}
+
 function speak(text){
   if(!('speechSynthesis' in window)){ setStatus('Trình duyệt không hỗ trợ đọc.'); return; }
+  if(!englishVoice) pickEnglishVoice();
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US';
+  if(englishVoice) u.voice = englishVoice;
+  else setStatus('⚠ Máy chưa có giọng đọc tiếng Anh cài sẵn.');
   u.rate = $('slowToggle').checked ? 0.65 : 0.95;
   window.speechSynthesis.speak(u);
 }
