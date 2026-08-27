@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 5 · Chuỗi cung ứng & Logistics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F2ECDD;
+    --kraft: #D9C7A0;
+    --kraft-dark: #C7B285;
+    --ink: #1E3348;
+    --rope: #8B6F47;
+    --stamp-red: #B23A2E;
+    --stamp-green: #3F6E4E;
+    --white: #FBF8F1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(30,51,72,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    font-family:'Libre Franklin', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:22px;}
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--rope);
+    text-transform:uppercase;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:28px;
+    margin:4px 0 2px;
+  }
+  .sub{font-size:13px;color:#5a5044;}
+
+  .stats{
+    display:flex;justify-content:center;gap:18px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;margin:14px 0 22px;color:var(--ink);
+  }
+  .stats b{font-size:15px;}
+
+  /* --- Tag card --- */
+  .tag-stage{
+    display:flex;justify-content:center;
+    perspective:1400px;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .string{
+    position:absolute;top:-26px;left:50%;transform:translateX(-50%);
+    width:2px;height:34px;background:var(--rope);
+    z-index:0;
+  }
+  .tag{
+    width:100%;max-width:420px;
+    aspect-ratio: 4/3;
+    position:relative;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform .55s cubic-bezier(.22,.9,.35,1);
+  }
+  .tag.flipped{transform:rotateY(180deg);}
+  .face{
+    position:absolute;inset:0;
+    backface-visibility:hidden;
+    background:var(--kraft);
+    border-radius:6px;
+    border:1px solid rgba(30,51,72,0.25);
+    box-shadow: 0 10px 24px rgba(30,51,72,0.18), inset 0 0 0 1px rgba(255,255,255,0.15);
+    padding:26px 22px;
+    display:flex;flex-direction:column;
+    clip-path: polygon(14% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 12%);
+  }
+  .face::before{
+    /* grommet hole */
+    content:"";
+    position:absolute; top:14px; left:14px;
+    width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #f4f0e4, #b9ac86 60%, #8a7b53);
+    box-shadow: inset 0 0 0 2px rgba(30,51,72,0.35), 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .face.back{transform:rotateY(180deg); background:var(--white);}
+  .tag-id{
+    font-family:'Space Mono',monospace;
+    font-size:11px; color:var(--rope); text-align:right;
+    letter-spacing:1px;
+  }
+  .word-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;}
+  .word{
+    font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:clamp(26px,7vw,38px);
+    text-transform:none;letter-spacing:0.5px;
+    line-height:1.1;
+  }
+  .pos{
+    font-family:'Space Mono',monospace;font-size:11px;
+    color:var(--rope); text-transform:uppercase; letter-spacing:1.5px;
+  }
+  .hint{font-size:11px;color:#6b6152;font-family:'Space Mono',monospace;}
+
+  .meaning{
+    font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;color:var(--ink);
+    text-align:center;
+  }
+  .example{
+    margin-top:10px;font-size:15px;line-height:1.5;text-align:center;color:#3a3226;
+    font-style:italic;
+  }
+  .example-vi{font-size:12.5px;color:#8a7f6c;text-align:center;margin-top:4px;}
+
+  .speak-btn{
+    border:none;background:var(--ink);color:var(--white);
+    width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    box-shadow:0 3px 8px rgba(30,51,72,0.3);
+  }
+  .speak-btn:active{transform:scale(0.92);}
+  .speak-row{display:flex;gap:10px;justify-content:center;margin-top:4px;}
+
+  .stamp{
+    position:absolute; bottom:16px; right:18px;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:2px; text-transform:uppercase;
+    border:2.5px solid; border-radius:4px;
+    padding:3px 8px;
+    transform:rotate(-8deg);
+    opacity:0.85;
+  }
+  .stamp.known{color:var(--stamp-green);border-color:var(--stamp-green);}
+  .stamp.new{color:var(--stamp-red);border-color:var(--stamp-red);}
+
+  /* --- Controls --- */
+  .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+  button.ctl{
+    font-family:'Space Mono',monospace;font-size:12px;
+    background:var(--white);border:1px solid var(--kraft-dark);
+    color:var(--ink);padding:9px 14px;border-radius:5px;cursor:pointer;
+    letter-spacing:0.5px;
+  }
+  button.ctl:hover{background:#fff;border-color:var(--ink);}
+  button.ctl.primary{background:var(--ink);color:var(--white);border-color:var(--ink);}
+  button.ctl.mark-known{border-color:var(--stamp-green);color:var(--stamp-green);}
+  button.ctl.mark-new{border-color:var(--stamp-red);color:var(--stamp-red);}
+  .toggle-row{display:flex;justify-content:center;align-items:center;gap:6px;font-size:12px;font-family:'Space Mono',monospace;margin-bottom:22px;color:#5a5044;}
+
+  /* --- Add form --- */
+  details.add-panel{
+    background:var(--white);border:1px solid var(--kraft-dark);border-radius:8px;
+    padding:4px 16px 16px;margin-bottom:20px;
+  }
+  details.add-panel summary{
+    cursor:pointer;padding:12px 0;font-family:'Oswald',sans-serif;
+    font-weight:600;text-transform:uppercase;letter-spacing:1px;font-size:14px;
+    color:var(--ink);
+  }
+  .form-grid{display:flex;flex-direction:column;gap:10px;}
+  .form-grid label{font-size:11px;font-family:'Space Mono',monospace;color:var(--rope);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px;}
+  .form-grid input, .form-grid select{
+    width:100%;padding:9px 10px;border:1px solid var(--kraft-dark);border-radius:5px;
+    font-family:'Libre Franklin',sans-serif;font-size:14px;background:var(--paper);
+  }
+  .form-grid input:focus, .form-grid select:focus{outline:2px solid var(--ink);outline-offset:1px;}
+
+  /* --- Deck list --- */
+  .deck-title{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--rope);margin:0 0 10px 2px;
+  }
+  .deck-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    font-family:'Space Mono',monospace;font-size:12px;
+    background:var(--white);border:1px solid var(--kraft-dark);
+    border-radius:20px;padding:7px 12px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .chip.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--stamp-red);}
+  .chip.done .dot{background:var(--stamp-green);}
+  .chip .del{opacity:0.5;font-weight:700;padding-left:2px;}
+  .chip .del:hover{opacity:1;color:var(--stamp-red);}
+
+  .empty{text-align:center;color:#8a7f6c;font-size:13px;padding:30px 0;}
+  .status-line{text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--rope);margin-bottom:14px;min-height:14px;}
+
+  @media (prefers-reduced-motion: reduce){ .tag{transition:none;} }
+
+  .lesson-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:18px;}
+  .navchip{
+    font-family:'Space Mono',monospace;font-size:11px;
+    background:var(--white);border:1px solid var(--kraft-dark);
+    border-radius:20px;padding:5px 10px;text-decoration:none;color:var(--ink);
+  }
+  .navchip.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Lesson 5 · Supply Chain & Logistics</div>
+    <h1>Thẻ Học Tiếng Anh</h1>
+    <div class="sub">Bấm vào thẻ để lật · Bấm loa để nghe phát âm</div>
+  </header>
+
+  <div class="lesson-nav">
+    <a class="navchip" href="index.html">Bài 1</a>
+    <a class="navchip" href="lesson_2.html">Bài 2</a>
+    <a class="navchip" href="lesson_3.html">Bài 3</a>
+    <a class="navchip" href="lesson_4.html">Bài 4</a>
+    <a class="navchip active" href="lesson_5.html">Bài 5</a>
+    <a class="navchip" href="lesson_6.html">Bài 6</a>
+    <a class="navchip" href="mini-test1.html">Mini Test 1</a>
+  </div>
+
+  <div class="stats">
+    <div>TỔNG THẺ: <b id="statTotal">0</b></div>
+    <div>ĐÃ THUỘC: <b id="statKnown">0</b></div>
+    <div>CẦN ÔN: <b id="statNew">0</b></div>
+  </div>
+
+  <div class="status-line" id="statusLine"></div>
+
+  <div id="cardArea">
+    <div class="tag-stage">
+      <div class="string"></div>
+      <div class="tag" id="tag">
+        <div class="face front">
+          <div class="tag-id" id="tagIdFront">TAG-000</div>
+          <div class="word-zone">
+            <div class="word" id="wordFront">—</div>
+            <div class="pos" id="posFront"></div>
+            <div class="speak-row"><button class="speak-btn" id="speakWordBtn" title="Nghe từ">▶</button></div>
+            <div class="hint">chạm để lật · xem nghĩa</div>
+          </div>
+          <div class="stamp new" id="stampFront">Cần ôn</div>
+        </div>
+        <div class="face back">
+          <div class="tag-id" id="tagIdBack">TAG-000</div>
+          <div class="word-zone">
+            <div class="meaning" id="meaningBack">—</div>
+            <div class="example" id="exampleBack"></div>
+            <div class="example-vi" id="exampleViBack"></div>
+            <div class="speak-row"><button class="speak-btn" id="speakExampleBtn" title="Nghe câu ví dụ">▶</button></div>
+          </div>
+          <div class="stamp new" id="stampBack">Cần ôn</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctl" id="prevBtn">◀ Trước</button>
+      <button class="ctl primary" id="flipBtn">Lật thẻ</button>
+      <button class="ctl" id="nextBtn">Sau ▶</button>
+    </div>
+    <div class="controls">
+      <button class="ctl mark-known" id="knownBtn">✓ Đã thuộc</button>
+      <button class="ctl mark-new" id="newBtn">↻ Cần ôn</button>
+      <button class="ctl" id="shuffleBtn">⤨ Xáo thẻ</button>
+      <button class="ctl" id="deleteBtn">🗑 Xoá thẻ này</button>
+    </div>
+    <div class="toggle-row">
+      <input type="checkbox" id="slowToggle"> <label for="slowToggle">Nghe chậm</label>
+    </div>
+  </div>
+
+  <details class="add-panel">
+    <summary>+ Thêm thẻ mới</summary>
+    <div class="form-grid">
+      <div>
+        <label for="inWord">Từ tiếng Anh</label>
+        <input id="inWord" placeholder="ví dụ: tolerance">
+      </div>
+      <div>
+        <label for="inPos">Loại từ</label>
+        <select id="inPos">
+          <option value="">— chọn —</option>
+          <option value="n.">danh từ (n.)</option>
+          <option value="v.">động từ (v.)</option>
+          <option value="adj.">tính từ (adj.)</option>
+          <option value="adv.">trạng từ (adv.)</option>
+          <option value="phrase">cụm từ</option>
+        </select>
+      </div>
+      <div>
+        <label for="inMeaning">Nghĩa tiếng Việt</label>
+        <input id="inMeaning" placeholder="ví dụ: dung sai">
+      </div>
+      <div>
+        <label for="inExample">Câu ví dụ (tiếng Anh)</label>
+        <input id="inExample" placeholder="ví dụ: The part is outside the allowed tolerance.">
+      </div>
+      <div>
+        <label for="inExampleVi">Dịch câu ví dụ (không bắt buộc)</label>
+        <input id="inExampleVi" placeholder="ví dụ: Linh kiện vượt quá dung sai cho phép.">
+      </div>
+      <button class="ctl primary" id="addBtn" style="align-self:flex-start;">+ Thêm vào bộ thẻ</button>
+    </div>
+  </details>
+
+  <div class="deck-title">Toàn bộ thẻ</div>
+  <div class="deck-grid" id="deckGrid"></div>
+</div>
+
+<script>
+const SEED = [
+  {word:"supplier", pos:"n.", meaning:"nhà cung cấp", example:"Our lens supplier confirmed the new delivery date.", exampleVi:"Nhà cung cấp ống kính của chúng tôi đã xác nhận ngày giao hàng mới."},
+  {word:"lead time", pos:"phrase", meaning:"thời gian chờ (từ đặt hàng đến giao hàng)", example:"The lead time for this component is currently six weeks.", exampleVi:"Thời gian chờ cho linh kiện này hiện là sáu tuần."},
+  {word:"inventory", pos:"n.", meaning:"hàng tồn kho", example:"We keep two weeks of safety inventory for critical parts.", exampleVi:"Chúng tôi giữ hai tuần tồn kho an toàn cho các linh kiện quan trọng."},
+  {word:"shipment", pos:"n.", meaning:"lô hàng", example:"The next shipment is expected to arrive on Friday.", exampleVi:"Lô hàng tiếp theo dự kiến sẽ đến vào thứ Sáu."},
+  {word:"procurement", pos:"n.", meaning:"mua sắm, thu mua", example:"The procurement team is negotiating a better price with the vendor.", exampleVi:"Đội thu mua đang đàm phán giá tốt hơn với nhà cung cấp."},
+  {word:"backorder", pos:"n.", meaning:"đơn hàng tồn đọng (chưa giao được)", example:"Ten units are on backorder due to a parts shortage.", exampleVi:"Mười đơn vị đang bị tồn đọng do thiếu linh kiện."},
+  {word:"logistics", pos:"n.", meaning:"hậu cần, logistics", example:"Logistics arranged air freight to meet the tight deadline.", exampleVi:"Bộ phận logistics đã sắp xếp vận chuyển đường hàng không để kịp hạn chót."},
+  {word:"bill of materials", pos:"phrase", meaning:"danh mục vật tư (BOM)", example:"Please update the bill of materials with the new connector part number.", exampleVi:"Vui lòng cập nhật danh mục vật tư với mã linh kiện đầu nối mới."}
+];
+
+let cards = [];
+let order = [];
+let current = 0;
+let flipped = false;
+
+const $ = (id) => document.getElementById(id);
+const statusLine = $('statusLine');
+
+function setStatus(msg, timeout=2200){
+  statusLine.textContent = msg;
+  if(timeout){ setTimeout(()=>{ if(statusLine.textContent===msg) statusLine.textContent=''; }, timeout); }
+}
+
+async function loadCards(){
+  try{
+    const raw = localStorage.getItem('flashcards_lesson5');
+    cards = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    cards = [];
+  }
+  if(!cards || cards.length === 0){
+    cards = SEED.map((c,i)=>({id: 'c'+Date.now()+i, status:'new', ...c}));
+    await saveCards();
+  }
+  order = cards.map((_,i)=>i);
+  current = 0;
+  render();
+}
+
+async function saveCards(){
+  try{
+    localStorage.setItem('flashcards_lesson5', JSON.stringify(cards));
+  }catch(e){
+    setStatus('⚠ Lỗi khi lưu dữ liệu.');
+  }
+}
+
+function render(){
+  const total = cards.length;
+  const known = cards.filter(c=>c.status==='known').length;
+  $('statTotal').textContent = total;
+  $('statKnown').textContent = known;
+  $('statNew').textContent = total - known;
+
+  document.getElementById('cardArea').style.display = total ? '' : 'none';
+  if(total === 0){
+    if(!document.getElementById('emptyMsg')){
+      const p = document.createElement('div');
+      p.className='empty'; p.id='emptyMsg';
+      p.textContent = 'Chưa có thẻ nào. Thêm thẻ mới bên dưới để bắt đầu.';
+      $('cardArea').after(p);
+    }
+    renderDeck();
+    return;
+  }
+  const existingEmpty = document.getElementById('emptyMsg');
+  if(existingEmpty) existingEmpty.remove();
+
+  if(current >= order.length) current = 0;
+  const idx = order[current];
+  const c = cards[idx];
+  const tagNum = String(idx+1).padStart(3,'0');
+
+  $('tagIdFront').textContent = 'TAG-'+tagNum;
+  $('tagIdBack').textContent = 'TAG-'+tagNum;
+  $('wordFront').textContent = c.word;
+  $('posFront').textContent = c.pos || '';
+  $('meaningBack').textContent = c.meaning || '';
+  $('exampleBack').textContent = c.example ? '"'+c.example+'"' : '';
+  $('exampleViBack').textContent = c.exampleVi || '';
+
+  const known2 = c.status === 'known';
+  [$('stampFront'), $('stampBack')].forEach(el=>{
+    el.textContent = known2 ? 'Đã thuộc' : 'Cần ôn';
+    el.classList.toggle('known', known2);
+    el.classList.toggle('new', !known2);
+  });
+
+  const tagEl = $('tag');
+  tagEl.classList.toggle('flipped', flipped);
+
+  renderDeck();
+}
+
+function renderDeck(){
+  const grid = $('deckGrid');
+  grid.innerHTML = '';
+  cards.forEach((c, i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (c.status==='known' ? ' done':'') + (order[current]===i ? ' active':'');
+    const dot = document.createElement('span'); dot.className='dot';
+    const label = document.createElement('span'); label.textContent = c.word;
+    const del = document.createElement('span'); del.className='del'; del.textContent='✕';
+    del.title = 'Xoá thẻ';
+    del.addEventListener('click', (e)=>{ e.stopPropagation(); removeCard(i); });
+    chip.appendChild(dot); chip.appendChild(label); chip.appendChild(del);
+    chip.addEventListener('click', ()=>{
+      const pos = order.indexOf(i);
+      current = pos >= 0 ? pos : 0;
+      flipped = false;
+      render();
+    });
+    grid.appendChild(chip);
+  });
+}
+
+let englishVoice = null;
+function pickEnglishVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const voices = window.speechSynthesis.getVoices();
+  englishVoice = voices.find(v=>v.lang==='en-US')
+    || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en'))
+    || null;
+}
+if('speechSynthesis' in window){
+  pickEnglishVoice();
+  window.speechSynthesis.onvoiceschanged = pickEnglishVoice;
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)){ setStatus('Trình duyệt không hỗ trợ đọc.'); return; }
+  if(!englishVoice) pickEnglishVoice();
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  if(englishVoice) u.voice = englishVoice;
+  else setStatus('⚠ Máy chưa có giọng đọc tiếng Anh cài sẵn.');
+  u.rate = $('slowToggle').checked ? 0.65 : 0.95;
+  window.speechSynthesis.speak(u);
+}
+
+$('speakWordBtn').addEventListener('click', ()=>{
+  const c = cards[order[current]]; if(c) speak(c.word);
+});
+$('speakExampleBtn').addEventListener('click', ()=>{
+  const c = cards[order[current]]; if(c && c.example) speak(c.example);
+});
+
+$('tag').addEventListener('click', (e)=>{
+  if(e.target.closest('.speak-btn')) return;
+  flipped = !flipped;
+  render();
+});
+$('flipBtn').addEventListener('click', ()=>{ flipped = !flipped; render(); });
+
+$('nextBtn').addEventListener('click', ()=>{
+  if(order.length===0) return;
+  current = (current+1) % order.length; flipped=false; render();
+});
+$('prevBtn').addEventListener('click', ()=>{
+  if(order.length===0) return;
+  current = (current-1+order.length) % order.length; flipped=false; render();
+});
+$('shuffleBtn').addEventListener('click', ()=>{
+  for(let i=order.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [order[i],order[j]] = [order[j],order[i]];
+  }
+  current = 0; flipped = false; render();
+  setStatus('Đã xáo bộ thẻ.');
+});
+$('knownBtn').addEventListener('click', async ()=>{
+  const idx = order[current]; if(idx===undefined) return;
+  cards[idx].status = 'known'; await saveCards(); render();
+});
+$('newBtn').addEventListener('click', async ()=>{
+  const idx = order[current]; if(idx===undefined) return;
+  cards[idx].status = 'new'; await saveCards(); render();
+});
+$('deleteBtn').addEventListener('click', ()=>{
+  const idx = order[current]; if(idx===undefined) return;
+  removeCard(idx);
+});
+
+async function removeCard(idx){
+  cards.splice(idx,1);
+  order = cards.map((_,i)=>i);
+  current = 0; flipped = false;
+  await saveCards();
+  render();
+}
+
+$('addBtn').addEventListener('click', async ()=>{
+  const word = $('inWord').value.trim();
+  const pos = $('inPos').value;
+  const meaning = $('inMeaning').value.trim();
+  const example = $('inExample').value.trim();
+  const exampleVi = $('inExampleVi').value.trim();
+  if(!word || !meaning){
+    setStatus('Vui lòng nhập ít nhất từ và nghĩa.');
+    return;
+  }
+  cards.push({id:'c'+Date.now(), word, pos, meaning, example, exampleVi, status:'new'});
+  order = cards.map((_,i)=>i);
+  current = order.length - 1;
+  flipped = false;
+  await saveCards();
+  render();
+  $('inWord').value=''; $('inPos').value=''; $('inMeaning').value='';
+  $('inExample').value=''; $('inExampleVi').value='';
+  setStatus('Đã thêm thẻ "'+word+'".');
+});
+
+loadCards();
+</script>
+</body>
+</html>
